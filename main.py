@@ -12,12 +12,12 @@ def home():
 
     if request.method == "POST":
         question_dict = game.question_dict()
-        for question, answer in question_dict.items():
-            temp_ques = question
-            print(question)
-            temp_answer = answer
+        for key, answer in question_dict.items():
+            temp_ques = answer["question"]
+            temp_answer = answer["answer"]
             user_input = request.form.get("user_input")
-            game.check_answer(user_input, answer)
+            return jsonify(answer= game.check_answer(user_input= user_input, correct_answer= temp_answer))
+
 
 
 
