@@ -12,16 +12,44 @@ from db.main import db, Category, Questions, QuestionsMulti
 from quiz import Quiz
 import os
 
-
+#creates an object with the quiz class
 game = Quiz()
 
 app = Flask(__name__)
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///instance/users.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(base_dir, 'db', 'instance', 'questions.db')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
+
+class Base(DeclarativeBase):
+    pass
+
+class Users(db.Model):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key= True, unique= True)
+    name: Mapped[str] = mapped_column(String(50), nullable= False)
+    email: Mapped[str] = mapped_column(String(100), nullable= False, unique= True)
+    password: Mapped[int] = mapped_column(Integer, nullable= False)
+
+    pastquiz = relationship("PastQuiz", back_populates= "users", cascade= "all, delete-orphan")
+
+class PastQuiz(db.Model):
+    __tablename__ = "pastquiz"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key= True, unique= True)
+    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable= False)
+    question: Mapped[str] = mapped_column(String, nullable= False)
+    answer: Mapped[str] = mapped_column(String, nullable= False)
+
+
+    users = relationship("Users", back_populates= "pastquiz")
+
+with app.app_context():
+    db.create_all()
 
 
 @app.route("/", methods= ["GET", "POST"])
@@ -88,6 +116,31 @@ def multi_choice():
 
     return jsonify(test= questions)
 
+
+@app.route("/register", methods= ["POsT", "GET"])
+def register():
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        result = db.session.query(Users).filter(Users.email == email).first()
+
+        if not result:
+            user = Users(email= email,
+                         name= name,
+                         password= generate_password_hash(password, salt_length= 8, method= "pbkdf2:sha256"))
+            db.session.add(user)
+            db.session.commit()
+            return jsonify(user= "user successfully created")
+
+        else:
+            return jsonify(user= "user already exist")
+
+
+
+    return jsonify(test= "home page")
 
 
 
