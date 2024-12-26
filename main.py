@@ -10,46 +10,83 @@ import time
 
 from db.main import db, Category, Questions, QuestionsMulti
 from quiz import Quiz
+import os
+
 
 game = Quiz()
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/instance/questions.db"
+base_dir = os.path.abspath(os.path.dirname(__file__))
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(base_dir, 'db', 'instance', 'questions.db')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
 
-
 @app.route("/", methods= ["GET", "POST"])
 def home():
 
-    # if request.method == "POST":
-    #     question_dict = game.question_dict()
-    #     for key, answer in question_dict.items():
-    #         temp_ques = answer["question"]
-    #         temp_answer = answer["answer"]
-    #         user_input = request.form.get("user_input")
-    #         return jsonify(answer= game.check_answer(user_input= user_input, correct_answer= temp_answer))
+    if request.method == "POST":
+        quiz = request.form.get("quiz")
+        if quiz == "true_false":
+            session["category"] = request.form.get("category")
+            return redirect(url_for("multiple_choice"))
 
-    with app.app_context():
-        try:
-            with app.app_context():
-                result = db.session.execute(db.select(Category))
-                return jsonify(data= result)
-
-        except IntegrityError as e:
-            print("failed to open file")
-        else:
-
-            return jsonify(error= "failed")
-
-
+        elif quiz == "multi":
+            session["category"] = request.form.get("category")
+            return redirect(url_for("true_false"))
 
 
 
     return jsonify(home= "homepage")
+
+@app.route("/true_false", methods= ["GET","POST"])
+def true_false():
+
+
+    if request.method == "POST":
+        return jsonify(quiz= "if the user wants to take the quiz again")
+
+
+
+    with app.app_context():
+        #grabs the id of the chosen category
+        # chosen_category = session["category"]
+        chosen_category = request.form.get("cat")
+        category_id = db.session.query(Category).filter(Category.category == chosen_category).first()
+
+
+        #parses the db and return the correct questions
+        temp_questions = db.session.query(Questions).filter(Questions.category_id == category_id.id)
+        questions_list = [[temp.question, temp.answer] for temp in temp_questions]
+
+    #Uses a method in the Quiz class to return 10 questions to show the user
+    questions = game.pick_10(questions_list) #questions along with the answer are now saved and ready for the front end
+
+
+    return jsonify(test= questions)
+
+@app.route("/multiple_choice", methods= ["GET", "POST"])
+def multi_choice():
+
+    if request.method == "POST":
+        return jsonify(test= "Test post method")
+
+    with app.app_context():
+        # grabs the id of the chosen category
+        # chosen_category = session["category"]
+        chosen_category = request.form.get("cat")
+        category_id = db.session.query(Category).filter(Category.category == chosen_category).first()
+
+        # parses the db and return the correct questions
+        temp_questions = db.session.query(QuestionsMulti).filter(Questions.category_id == category_id.id)
+        questions_list = [[temp.question, temp.answer, temp.option1, temp.option2, temp.option3, temp.option4] for temp in temp_questions]
+
+        # Uses a method in the Quiz class to return 10 questions to show the user
+        questions = game.pick_10(questions_list)  # questions along with the answer are now saved and ready for the front end
+
+    return jsonify(test= questions)
 
 
 

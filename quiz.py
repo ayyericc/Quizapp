@@ -1,5 +1,8 @@
 import html
 import requests
+import random
+
+
 
 api_url = "https://opentdb.com/api.php?amount=10&type=boolean"
 
@@ -36,6 +39,23 @@ class Quiz:
 
     def finished(self):
         return f"Your final score was {self.score}/{self.question_count}"
+
+    def pick_10(self, question_list):
+        temp_list = []
+        count = 0
+
+        while count < 10:
+            temp_question = random.choice(question_list)
+
+            if temp_question not in temp_list:
+                temp_list.append(temp_question)
+                count += 1
+            else:
+                continue
+
+
+        return temp_list
+
 
 
 
