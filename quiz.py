@@ -29,13 +29,17 @@ class Quiz:
 
         return self.question_list
 
-    def check_answer(self, user_input, correct_answer):
-        if user_input.lower() == correct_answer.lower():
-            self.score += 1
-            return True
+    def check_answer(self, user_input, correct_answer, multi= False):
+        correct_answers = [answer[1] for answer in correct_answer]
 
-        self.question_count += 1
-        return False
+        for i, answer in enumerate(user_input):
+            if correct_answers[i] == answer:
+                self.score += 1
+            else:
+                continue
+
+        return self.score
+
 
     def finished(self):
         return f"Your final score was {self.score}/{self.question_count}"
@@ -48,7 +52,7 @@ class Quiz:
             temp_question = random.choice(question_list)
 
             if temp_question not in temp_list:
-                temp_list.append(temp_question)
+                temp_list.append(html.unescape(temp_question))
                 count += 1
             else:
                 continue
@@ -63,7 +67,7 @@ class Quiz:
 
 
 
-
+7
 
 
 

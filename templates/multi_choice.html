@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Choice Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='truefalse.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Multiple Choice Quiz</h1>
+        <form action="/multiple_choice" method="POST">
+            <ol>
+                {% for question, correct_answer, *choices in questions %}
+                <li>
+                    <p>{{ question }}</p>
+                    <!-- Loop through the shuffled choices to create radio buttons for each one -->
+                    {% for choice in choices %}
+                    <label>
+                        <input type="radio" name="answer_{{ loop.parent.loop.index }}" value="{{ choice }}" required> {{ choice }}
+                    </label><br>
+                    {% endfor %}
+                    <!-- Hidden field to store the correct answer -->
+                    <input type="hidden" name="correct_answer_{{ loop.index }}" value="{{ correct_answer }}">
+                </li>
+                {% endfor %}
+            </ol>
+            <button type="submit">Submit Answers</button>
+        </form>
+    </div>
+</body>
+</html>

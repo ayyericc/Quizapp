@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True/False Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='truefalse.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>True/False Quiz</h1>
+        <form action="/true_false" method="POST">
+            <ol>
+                {% for question, correct_answer in questions %}
+                <li>
+                    <p>{{ question }}</p>
+                    <label>
+                        <input type="radio" name="answer_{{ loop.index }}" value="True" required> True
+                    </label>
+                    <label>
+                        <input type="radio" name="answer_{{ loop.index }}" value="False" required> False
+                    </label>
+                    <!-- Hidden field to store the correct answer -->
+                    <input type="hidden" name="correct_answer_{{ loop.index }}" value="{{ correct_answer }}">
+                </li>
+                {% endfor %}
+            </ol>
+            <button type="submit">Submit Answers</button>
+        </form>
+    </div>
+</body>
+</html>

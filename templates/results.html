@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz Results</h1>
+        <p>You scored {{ score }} out of {{ total }} ({{ score_percentage }}%)</p>
+
+        <h2>Would you like to take the quiz again?</h2>
+
+        <!-- Button to go back to the quiz -->
+        <a href="{{ url_for('home') }}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+            Take the Quiz Again
+        </a>
+    </div>
+</body>
+</html>

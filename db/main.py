@@ -50,6 +50,30 @@ class QuestionsMulti(db.Model):
 
     category = relationship("Category", back_populates= "questions_multi")
 
+class Users(db.Model):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key= True, unique= True)
+    name: Mapped[str] = mapped_column(String(50), nullable= False)
+    email: Mapped[str] = mapped_column(String(100), nullable= False, unique= True)
+    password: Mapped[int] = mapped_column(Integer, nullable= False)
+
+    pastquiz = relationship("PastQuiz", back_populates= "users", cascade= "all, delete-orphan")
+
+class PastQuiz(db.Model):
+    __tablename__ = "pastquiz"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key= True, unique= True)
+    users_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable= False)
+    question: Mapped[str] = mapped_column(String, nullable= False)
+    answer: Mapped[str] = mapped_column(String, nullable= False)
+    date: Mapped[int] = mapped_column(Integer, nullable= False)
+
+
+    users = relationship("Users", back_populates= "pastquiz")
+
+
+
 
 
 # # Set up the database
