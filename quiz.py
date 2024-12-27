@@ -13,7 +13,7 @@ class Quiz:
         self.question_count = 1
         self.question_list = {}
 
-
+    #This method is not being used since I made my own DB -------------------------------
     def question_dict(self):
         response = requests.get(api_url)
 

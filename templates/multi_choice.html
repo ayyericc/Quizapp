@@ -4,24 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiple Choice Quiz</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='truefalse.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        ol {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            background-color: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Multiple Choice Quiz</h1>
         <form action="/multiple_choice" method="POST">
             <ol>
-                {% for question, correct_answer, *choices in questions %}
+                {% for question, choices in questions_with_choices %}
                 <li>
-                    <p>{{ question }}</p>
-                    <!-- Loop through the shuffled choices to create radio buttons for each one -->
-                    {% for choice in choices %}
+                    <p>{{ loop.index }}. {{ question }}</p>
+
+                    <!-- Choices displayed below each question -->
                     <label>
-                        <input type="radio" name="answer_{{ loop.parent.loop.index }}" value="{{ choice }}" required> {{ choice }}
-                    </label><br>
-                    {% endfor %}
-                    <!-- Hidden field to store the correct answer -->
-                    <input type="hidden" name="correct_answer_{{ loop.index }}" value="{{ correct_answer }}">
+                        <input type="radio" name="answer_{{ loop.index }}" value="A" required> {{ choices[0] }}
+                    </label>
+
+                    <label>
+                        <input type="radio" name="answer_{{ loop.index }}" value="B" required> {{ choices[1] }}
+                    </label>
+
+                    <label>
+                        <input type="radio" name="answer_{{ loop.index }}" value="C" required> {{ choices[2] }}
+                    </label>
+
+                    <label>
+                        <input type="radio" name="answer_{{ loop.index }}" value="D" required> {{ choices[3] }}
+                    </label>
                 </li>
                 {% endfor %}
             </ol>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Homepage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Quiz</h1>
+        <form method="POST" action="/">
+            <label for="quiz">Choose Quiz Type:</label>
+            <select name="quiz" id="quiz" required>
+                <option value="">Select a quiz type</option>
+                <option value="multi">Multiple Choice</option>
+                <option value="true_false">True/False</option>
+            </select>
+
+            <label for="category">Choose a Category:</label>
+            <select name="category" id="category" required>
+                <option value="">Select a category</option>
+                {% for cat in true_false_categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="hidden" name="action" value="submit_category">
+
+            <button type="submit">Start Quiz</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript to update the category options based on quiz type selected
+        const quizSelect = document.getElementById('quiz');
+        const categorySelect = document.getElementById('category');
+
+        quizSelect.addEventListener('change', function() {
+            const quizType = quizSelect.value;
+
+            // Reset the category select options
+            categorySelect.innerHTML = '<option value="">Select a category</option>';
+
+            // Populate categories based on quiz type selected
+            if (quizType === 'multi') {
+                const multiChoiceCategories = {{ multi_choice_categories | tojson }};
+                multiChoiceCategories.forEach(function(category) {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            } else if (quizType === 'true_false') {
+                const trueFalseCategories = {{ true_false_categories | tojson }};
+                trueFalseCategories.forEach(function(category) {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
