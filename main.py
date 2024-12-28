@@ -1,8 +1,5 @@
-import random
-import html
 from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, jsonify, session
 from sqlalchemy.exc import IntegrityError
-from unicodedata import category
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -10,7 +7,8 @@ from sqlalchemy import Integer, String, ForeignKey
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 import secrets
 import time
-
+import random
+import html
 from db.main import db, Category, Questions, QuestionsMulti,Users, PastQuiz
 from quiz import Quiz
 import os
@@ -37,9 +35,10 @@ with app.app_context():
 
 @app.route("/", methods= ["GET", "POST"])
 def home():
+    session["count"] = 0
     # Gets all the category's to send to the front end
 
-    #Uses matching ids to get the category for that specific quiz. Also us dynamic for when I update categorys
+    #Uses matching ids to get the category for that specific quiz. Also, us dynamic for when I update category's
     tf_matching_ids = db.session.query(Category.id, Category.category).join(Questions, Category.id == Questions.category_id).distinct().all()
     multi_matching_ids = db.session.query(Category.id, Category.category).join(QuestionsMulti, Category.id == QuestionsMulti.category_id).distinct().all()
 
@@ -70,16 +69,26 @@ def true_false():
 
     if request.method == "POST":
 
-        #Get the user answers and return a score which is then passed to the html
-        user_answer = [request.form.get(f"answer_{i}") for i in range(1, 11)]
-        score = game.check_answer(user_input= user_answer, correct_answer= session["questions"])
-        score_percentage = score * 10
+        if session["count"] == 0:
+            #Get the user answers and return a score which is then passed to the html
+            user_answer = [request.form.get(f"answer_{i}") for i in range(1, 11)]
+            score = game.check_answer(user_input= user_answer, correct_answer= session["questions"])
+            score_percentage = score * 10
+            session["count"] = 1
+            session["score_percentage"] = score_percentage
+            session["score"] = score
 
-        return render_template("results.html", score= score, score_percentage= score_percentage)
-        # return jsonify(quiz= "if the user wants to take the quiz again")
+
+
+            return render_template("results.html", score= score, score_percentage= score_percentage)
+        elif session["count"] != 0:
+            return render_template("results.html", score= session["score"], score_percentage= session["score_percentage"])
 
 
 
+
+
+    session["count"] = 0
     with app.app_context():
         #grabs the id of the chosen category
         chosen_category = session["category"]
@@ -138,7 +147,7 @@ def multiple_choice():
 
 
 
-@app.route("/register", methods= ["POsT", "GET"])
+@app.route("/register", methods= ["POST", "GET"])
 def register():
 
     if request.method == "POST":
